@@ -4,6 +4,8 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import cors from "cors"; // Import the cors package
 import helloRouter from "./routes/hello"; // Import the route file
+import users from "./routes/v1/user"; // Import the route file
+
 dotenv.config();
 
 const app = express();
@@ -17,6 +19,7 @@ app.get("/", async (req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use("/hello", helloRouter);
+app.use("/v1", users);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   next(createError.NotFound());
