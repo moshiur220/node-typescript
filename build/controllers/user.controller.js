@@ -15,6 +15,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const catchAsync_1 = __importDefault(require("../libs/catchAsync"));
+const logger_1 = __importDefault(require("../libs/logger"));
 class UserController {
     static getAllUsers(req, res) {
         try {
@@ -45,6 +46,8 @@ UserController.allUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void
             { id: 1, name: "User 1" },
             { id: 2, name: "User 2" },
         ];
+        logger_1.default.error("error fetching users");
+        logger_1.default.info(JSON.stringify(users));
         res.status(http_status_codes_1.default.OK).json({
             success: true,
             message: "All Users fetched successfully",
@@ -52,6 +55,7 @@ UserController.allUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void
         });
     }
     catch (error) {
+        console.log(error);
         res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: "Internal server error",

@@ -18,7 +18,7 @@ const morgan_1 = __importDefault(require("morgan"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors")); // Import the cors package
 const hello_1 = __importDefault(require("./routes/hello")); // Import the route file
-const user_1 = __importDefault(require("./routes/v1/user")); // Import the route file
+const v1_1 = __importDefault(require("./routes/v1")); // Import the route file
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -29,7 +29,7 @@ app.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () 
     res.send({ message: "Awesome it works 🐻" });
 }));
 app.use("/hello", hello_1.default);
-app.use("/v1", user_1.default);
+app.use("/v1", v1_1.default);
 app.use((req, res, next) => {
     next(http_errors_1.default.NotFound());
 });
