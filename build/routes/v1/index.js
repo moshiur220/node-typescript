@@ -5,12 +5,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const user_route_1 = __importDefault(require("./user.route"));
+const movie_route_1 = __importDefault(require("./movie.route"));
 const router = express_1.default.Router();
 //http://localhost:3000/v1/user/all
 const defaultRoutes = [
     {
         path: "/user",
         route: user_route_1.default,
+    },
+    {
+        path: "/movie",
+        route: movie_route_1.default,
     },
 ];
 defaultRoutes.forEach((route) => {

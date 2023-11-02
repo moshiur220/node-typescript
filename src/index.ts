@@ -1,26 +1,32 @@
 import express, { Request, Response, NextFunction } from "express";
 import createError from "http-errors";
 import morgan from "morgan";
+import cors from "cors";
 import dotenv from "dotenv";
-import cors from "cors"; // Import the cors package
-import helloRouter from "./routes/hello"; // Import the route file
-import route from "./routes/v1"; // Import the route file
+import { initializeDatabase } from "./config/database";
+import helloRouter from "./routes/hello";
+import v1Router from "./routes/v1";
 
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(morgan("dev"));
 app.use(cors());
-app.get("/", async (req: Request, res: Response, next: NextFunction) => {
+
+// Routes
+app.get("/", (req: Request, res: Response) => {
   res.send({ message: "Awesome it works 🐻" });
 });
 
 app.use("/hello", helloRouter);
-app.use("/v1", route);
+app.use("/v1", v1Router);
 
+// Error Handling
 app.use((req: Request, res: Response, next: NextFunction) => {
   next(createError.NotFound());
 });
@@ -40,5 +46,9 @@ app.use(
   }
 );
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 @ http://localhost:${PORT}`));
+// Initialize the database
+initializeDatabase().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 @ http://localhost:${PORT}`);
+  });
+});
