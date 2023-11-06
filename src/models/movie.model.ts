@@ -1,40 +1,49 @@
-import mongoose, { Document, Model } from "mongoose";
+import { DataTypes, Model } from "sequelize";
+import sequelize from "../config";
 
-// Create a schema for the "movie" entity
-const movieSchema = new mongoose.Schema({
-  title: {
-    type: String,
-  },
-  description: {
-    type: String,
-  },
-  releaseYear: {
-    type: String,
-  },
-  length: {
-    type: Number,
-  },
-  rating: {
-    type: Number,
-  },
-  imageUrl: {
-    type: String,
-  },
-});
+class Movie extends Model {
+  public id!: string;
+  public title!: string;
+  public description!: string;
+  public releaseYear!: string;
+  public length!: number;
+  public rating!: number;
+  public imageUrl!: string;
 
-// Create the "movie" model
-export interface MovieDocument extends Document {
-  title: string;
-  description: string;
-  releaseYear: string;
-  length: number;
-  rating: number;
-  imageUrl: string;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
-export const MovieModel: Model<MovieDocument> = mongoose.model<MovieDocument>(
-  "Movie",
-  movieSchema
+Movie.init(
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    title: {
+      type: DataTypes.STRING,
+    },
+    description: {
+      type: DataTypes.STRING,
+    },
+    releaseYear: {
+      type: DataTypes.STRING,
+    },
+    length: {
+      type: DataTypes.INTEGER,
+    },
+    rating: {
+      type: DataTypes.INTEGER,
+    },
+    imageUrl: {
+      type: DataTypes.STRING,
+    },
+  },
+  {
+    sequelize,
+    tableName: "movies",
+  }
 );
 
-export default MovieModel;
+export default Movie;

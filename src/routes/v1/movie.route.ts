@@ -10,7 +10,7 @@ const router = express.Router();
 //   .get(validate(movieValidation.getMovieQuery), MovieController.getMovieQuery)
 //   .post(validate(movieValidation.createMovie), MovieController.createMovie);
 
-router.get("/", testMiddleware, movieController.allMovie);
+router.get("/", testMiddleware, movieController.allMovies);
 // router.post("/", testMiddleware, movieController.createMovie);
 router.post(
   "/",

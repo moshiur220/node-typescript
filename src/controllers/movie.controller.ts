@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import HttpStatus from "http-status-codes";
 import catchAsync from "../libs/catchAsync";
+import pick from "../libs/pick";
 import logger from "../libs/logger";
-import { MovieModel } from "../models/movie.model"; // Assuming 'movie' is the correct model name
+import { MovieModel } from "../models";
 
 interface CreateMovieRequestBody {
   title: string;
@@ -13,24 +14,53 @@ interface CreateMovieRequestBody {
   imageUrl: string;
 }
 
+interface GetMoviesRequest {
+  page?: number;
+  limit?: number;
+}
 class MovieController {
-  static allMovie = catchAsync(async (req: Request, res: Response) => {
+  static allMovies = catchAsync(async (req: Request, res: Response) => {
+    const filter = pick(req.query, [
+      "title",
+      "description",
+      "releaseYear",
+      "length",
+      "rating",
+    ]);
+    const options = pick(req.query, ["sortBy", "limit", "page"]);
+    console.log(options.sortBy.split(","));
+
+    console.log("filter");
+    console.log(filter);
+    console.log("filter options");
+    console.log(options);
+
     try {
-      const allMovies = await MovieModel.find();
+      const { page = 1, limit = 10 } = req.query as GetMoviesRequest;
+      const offset = (page - 1) * limit;
+
+      const { count, rows: allMovies } = await MovieModel.findAndCountAll({
+        offset,
+        limit,
+      });
 
       if (allMovies.length === 0) {
-        res.status(HttpStatus.NOT_FOUND).json({
+        return res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           message: "No movies found",
         });
-        return;
       }
 
-      res.status(HttpStatus.OK).json({
+      const response = {
         success: true,
         message: "Movies fetched successfully",
         data: allMovies,
-      });
+        totalResults: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+      };
+
+      res.status(HttpStatus.OK).json(response);
     } catch (error) {
       logger.error("Error fetching movies:", error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -52,8 +82,8 @@ class MovieController {
         imageUrl,
       }: CreateMovieRequestBody = req.body;
 
-      // Create a new movie document
-      const newMovie = new MovieModel({
+      // Create a new movie in the database
+      const newMovie = await MovieModel.create({
         title,
         description,
         releaseYear,
@@ -61,9 +91,6 @@ class MovieController {
         rating,
         imageUrl,
       });
-
-      // Save the movie to the database
-      await newMovie.save();
 
       res.status(HttpStatus.CREATED).json({
         success: true,

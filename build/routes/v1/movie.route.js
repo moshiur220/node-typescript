@@ -13,7 +13,7 @@ const router = express_1.default.Router();
 //   .route("/")
 //   .get(validate(movieValidation.getMovieQuery), MovieController.getMovieQuery)
 //   .post(validate(movieValidation.createMovie), MovieController.createMovie);
-router.get("/", test_middleware_1.default, controllers_1.movieController.allMovie);
+router.get("/", test_middleware_1.default, controllers_1.movieController.allMovies);
 // router.post("/", testMiddleware, movieController.createMovie);
 router.post("/", (0, validate_1.default)(movie_validation_1.default.createMovie), controllers_1.movieController.createMovie);
 exports.default = router;

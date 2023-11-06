@@ -15,26 +15,48 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const catchAsync_1 = __importDefault(require("../libs/catchAsync"));
+const pick_1 = __importDefault(require("../libs/pick"));
 const logger_1 = __importDefault(require("../libs/logger"));
-const movie_model_1 = require("../models/movie.model"); // Assuming 'movie' is the correct model name
+const models_1 = require("../models");
 class MovieController {
 }
 _a = MovieController;
-MovieController.allMovie = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+MovieController.allMovies = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const filter = (0, pick_1.default)(req.query, [
+        "title",
+        "description",
+        "releaseYear",
+        "length",
+        "rating",
+    ]);
+    const options = (0, pick_1.default)(req.query, ["sortBy", "limit", "page"]);
+    console.log(options.sortBy.split(","));
+    console.log("filter");
+    console.log(filter);
+    console.log("filter options");
+    console.log(options);
     try {
-        const allMovies = yield movie_model_1.MovieModel.find();
+        const { page = 1, limit = 10 } = req.query;
+        const offset = (page - 1) * limit;
+        const { count, rows: allMovies } = yield models_1.MovieModel.findAndCountAll({
+            offset,
+            limit,
+        });
         if (allMovies.length === 0) {
-            res.status(http_status_codes_1.default.NOT_FOUND).json({
+            return res.status(http_status_codes_1.default.NOT_FOUND).json({
                 success: false,
                 message: "No movies found",
             });
-            return;
         }
-        res.status(http_status_codes_1.default.OK).json({
+        const response = {
             success: true,
             message: "Movies fetched successfully",
             data: allMovies,
-        });
+            totalResults: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+        };
+        res.status(http_status_codes_1.default.OK).json(response);
     }
     catch (error) {
         logger_1.default.error("Error fetching movies:", error);
@@ -48,8 +70,8 @@ MovieController.createMovie = (0, catchAsync_1.default)((req, res) => __awaiter(
     try {
         // Assuming you have the necessary request data in the req.body
         const { title, description, releaseYear, length, rating, imageUrl, } = req.body;
-        // Create a new movie document
-        const newMovie = new movie_model_1.MovieModel({
+        // Create a new movie in the database
+        const newMovie = yield models_1.MovieModel.create({
             title,
             description,
             releaseYear,
@@ -57,8 +79,6 @@ MovieController.createMovie = (0, catchAsync_1.default)((req, res) => __awaiter(
             rating,
             imageUrl,
         });
-        // Save the movie to the database
-        yield newMovie.save();
         res.status(http_status_codes_1.default.CREATED).json({
             success: true,
             message: "Movie created successfully",
